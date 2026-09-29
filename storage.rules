@@ -1,0 +1,18 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /verificationRequests/{uid}/{documentName} {
+      allow read: if request.auth != null
+        && (request.auth.uid == uid
+          || (request.auth.token.email == 'abdoaltyp8@gmail.com' && request.auth.token.email_verified == true));
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && documentName.matches('(profilePhoto|medicalLicense|nationalIdFront|nationalIdBack)-[0-9a-fA-F-]{36}')
+        && request.resource.size < 10485760
+        && request.resource.contentType.matches('image/.*')
+        && request.resource.metadata.applicationStatus == 'pending';
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
